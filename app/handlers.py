@@ -8,20 +8,39 @@ from app.database import *
 
 # Функция-обработчик команды /start 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Обработчик команды /start с клавиатурой"""
+    # Создаем клавиатуру с кнопками
+    keyboard = [
+        [KeyboardButton("/fortune")],
+        [KeyboardButton("/info"), KeyboardButton("/stats")],
+        [KeyboardButton("/help")]
+    ]
+    reply_markup = ReplyKeyboardMarkup(
+        keyboard,
+        resize_keyboard=True,  # Клавиатура подстраивается под размер экрана
+        one_time_keyboard=False  # Клавиатура остается открытой
+    )
     
     user = update.message.from_user
 
 
     if has_user_got_fortune_today(user.id):
-        await update.message.reply_text(f"Привет, {user.first_name}! 👋 Я твой бот-предсказатель. \nЯ вижу ты уже получил свое предскозание на сегодня. \nК сожалению предсказание можно получить только один раз в день! \nЗавтра приходи еще 😉")
-        return
+        welcome_text = f"Привет, {user.first_name}! 👋 Я твой бот-предсказатель. \nЯ вижу ты уже получил свое предскозание на сегодня. \nК сожалению предсказание можно получить только один раз в день! \nЗавтра приходи еще 😉"
+        await update.message.reply_text(
+            welcome_text,
+            reply_markup=reply_markup
+    )
     
-    await update.message.reply_text(f"""
+    welcome_text = f"""
     
     Привет, {user.first_name}! 👋 Я твой бот-предсказатель. Напиши мне /fortune, чтобы узнать, что тебя ждет сегодня.
     Так же если хочешь узнать что я умею, напиши мне /help.
     
-    """)
+    """
+    await update.message.reply_text(
+        welcome_text,
+        reply_markup=reply_markup
+    )
 
 # Функция-обработчик команды /fortune 
 async def fortune_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
