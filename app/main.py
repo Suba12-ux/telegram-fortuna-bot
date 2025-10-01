@@ -3,14 +3,20 @@ from telegram.ext import Application, CommandHandler
 from app.handlers import start_command, help_command, fortune_command, info_command, stats_command
 from app.database import init_db
 from dotenv import load_dotenv # Импортируем новую библиотеку
+from telegram import BotCommand
 
-# Загружаем переменные из файла .env
-load_dotenv()
 
-# Получаем токен из переменной окружения
-BOT_TOKEN = os.getenv('BOT_TOKEN')
-if not BOT_TOKEN:
-    raise ValueError("Ошибка: Не задана переменная окружения BOT_TOKEN")
+async def set_bot_commands(application):
+    """Устанавливает меню команд для бота"""
+    commands = [
+        BotCommand("start", "Начать общение"),
+        BotCommand("help", "Показать справку"),
+        BotCommand("fortune", "Получить предсказание на сегодня"),
+        BotCommand("info", "Личные данные"),
+        BotCommand("stats", "Статистика предсказаний")
+    ]
+    await application.bot.set_my_commands(commands)
+
 
 def main():
     init_db()
@@ -21,6 +27,9 @@ def main():
     app.add_handler(CommandHandler("fortune", fortune_command))
     app.add_handler(CommandHandler("info", info_command))
     app.add_handler(CommandHandler("stats", stats_command))
+
+    # Устанавливаем команды при запуске
+    app.post_init = set_bot_commands
 
     print("Бот запущен...")
     app.run_polling()
