@@ -5,6 +5,9 @@ from telegram.ext import Application, CommandHandler, ContextTypes
 import random
 from app.data import FORTUNES
 from app.database import *
+from telegram import ReplyKeyboardMarkup, KeyboardButton
+
+
 
 # Функция-обработчик команды /start 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
