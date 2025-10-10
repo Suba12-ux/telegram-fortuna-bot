@@ -8,43 +8,40 @@ from app.database import *
 from telegram import ReplyKeyboardMarkup, KeyboardButton
 
 
-
 # Функция-обработчик команды /start 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = [
-        [KeyboardButton("/fortune")],
-        [KeyboardButton("/info"), KeyboardButton("/stats")],
-        [KeyboardButton("/help")]
-    ]
-    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
-    
+    #reply_markup = get_main_keyboard()  # Уже получаем готовую клавиатуру
     user = update.message.from_user
 
     if has_user_got_fortune_today(user.id):
         welcome_text = f"Привет, {user.first_name}! 👋 Я твой бот-предсказатель.\nЯ вижу ты уже получил свое предсказание на сегодня.\nК сожалению предсказание можно получить только один раз в день!\nЗавтра приходи еще 😉"
-        await update.message.reply_text(welcome_text, reply_markup=reply_markup)
+        await update.message.reply_text(welcome_text) # reply_markup=reply_markup
     else:
         welcome_text = f"""Привет, {user.first_name}! 👋 Я твой бот-предсказатель. Нажми кнопку ниже или напиши /fortune, чтобы узнать, что тебя ждет сегодня."""
-        await update.message.reply_text(welcome_text, reply_markup=reply_markup)
+        await update.message.reply_text(welcome_text ) # reply_markup=reply_markup
 
 # Функция-обработчик команды /fortune 
 async def fortune_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.message.from_user
+    #reply_markup = get_main_keyboard()
 
     # Проверяем, получал ли пользователь предсказание сегодня save_user_fortune
     if has_user_got_fortune_today(user.id):
-        await update.message.reply_text("Извини, но предсказание можно получить только один раз в день! Завтра приходи еще 😉")
+        await update.message.reply_text("Извини, но предсказание можно получить только один раз в день! Завтра приходи еще 😉" ) # reply_markup=reply_markup
         return
 
     # Если не получал - продолжаем
     random_fortune = random.choice(FORTUNES)
     user_id = get_or_create_user(user.id, user.first_name, user.last_name)
-    save_user_fortune(user_id, random_fortune, user.first_name) # Сохраняем в историю  
+    save_user_fortune(user_id, random_fortune, user.first_name)
 
-    await update.message.reply_text(f"🔮 Ваше предсказание на сегодня:\n\n*{random_fortune}*", parse_mode='Markdown')
+    await update.message.reply_text(
+        f"🔮 Ваше предсказание на сегодня:\n\n*{random_fortune}*"
+    )
 
 # Функция-обработчик команды /help
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    #reply_markup = get_main_keyboard()
     help_text = """
     Вот что я умею:
     /start ------ Начать общение.
@@ -53,12 +50,13 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     /info ------- Личные данные.
     /stats ------ Статистика.
     """
-    await update.message.reply_text(help_text)
+    await update.message.reply_text(help_text) # reply_markup=reply_markup
 
 # Функция-обработчик команды /info 
 async def info_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.message.from_user
-    # Более надежное форматирование
+    #reply_markup = get_main_keyboard()
+    
     info_text = (
         f"*Информация о вас:*\n\n"
         f"• *Имя*: {user.first_name or 'Не указано'}\n"
@@ -66,13 +64,15 @@ async def info_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"• *Username*: @{user.username or 'Не указан'}\n"
         f"• *ID*: `{user.id}`"
     )
-    await update.message.reply_text(info_text, parse_mode='Markdown')
-
+    await update.message.reply_text(info_text)
 
 # Функция-обработчик команды /stats
 async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_name = update.message.from_user.id
+    #reply_markup = get_main_keyboard()
+    user_id = update.message.from_user.id
 
-    user_data = get_user_fortunes_count(user_name)
-
-    await update.message.reply_text(str(*user_data))
+    user_data = get_user_fortunes_count(user_id)
+    # Предполагая, что user_data возвращает (count,)
+    stats_text = f"📊 *Ваша статистика:*\n\n• Получено предсказаний: {user_data[0] if user_data else 0}"
+    
+    await update.message.reply_text(stats_text)
