@@ -25,6 +25,7 @@ def init_db():
     CREATE TABLE IF NOT EXISTS users (
         telegram_id INTEGER UNIQUE NOT NULL,
         first_name TEXT,
+        last_name TEXT,
         username TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
@@ -46,7 +47,7 @@ def init_db():
     print("База данных инициализирована")
 
 # Функция для добавления или получения существующего пользователя
-def get_or_create_user(telegram_id, first_name, username):
+def get_or_create_user(telegram_id, first_name, last_name, username):
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -57,8 +58,8 @@ def get_or_create_user(telegram_id, first_name, username):
     # Если не нашли, создаем нового
     if user is None:
         cursor.execute(
-            'INSERT INTO users (telegram_id, first_name, username) VALUES (?, ?, ?)',
-            (telegram_id, first_name, username)
+            'INSERT INTO users (telegram_id, first_name, last_name, username) VALUES (?, ?, ?, ?)',
+            (telegram_id, first_name, last_name, username,)
         )
         conn.commit()
         # Получаем ID только что вставленной записи
@@ -77,7 +78,7 @@ def save_user_fortune(telegram_id, fortune_text, username):
 
     cursor.execute(
         'INSERT INTO user_fortunes (telegram_id, fortune_text, username ) VALUES (?, ?, ?)',
-        (telegram_id, fortune_text, username)
+        (telegram_id, fortune_text, username,)
     )
     conn.commit()
     conn.close()
@@ -118,3 +119,42 @@ def get_user_fortunes_count(telegram_id):
 
     # Форматируем каждую запись
     return [f"\n{row[0]} - {row[1]}" for row in fortunes]  # ← по индексам
+
+
+def add_all_info():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        users_query = "SELECT * FROM users"
+        fortunes_query = "SELECT * FROM user_fortunes"
+        
+        cursor.execute(users_query)
+        users_rows = cursor.fetchall()
+        
+        cursor.execute(fortunes_query)
+        fortunes_rows = cursor.fetchall()
+        
+        # Преобразуем сразу в читаемые строки
+        users = []
+        for row in users_rows:
+            user_dict = dict(row)
+            users.append(f"ID: {user_dict.get('telegram_id')}, Имя: {user_dict.get('first_name')}, Фамилия: {user_dict.get('last_name')}")
+        
+        fortunes = []
+        for row in fortunes_rows:
+            fortune_dict = dict(row)
+            fortunes.append(f"ID: {fortune_dict.get('telegram_id')}, \tИмя: {fortune_dict.get('username')}, \tТекст: {fortune_dict.get('fortune_text')}")
+        
+        return {
+            'users': users,
+            'fortunes': fortunes
+        }
+        
+    except Exception as e:
+        print(f"Ошибка при выполнении запроса: {e}")
+        return {'users': [], 'fortunes': []}
+        
+    finally:
+        if conn:
+            conn.close()

@@ -10,7 +10,7 @@ from telegram import ReplyKeyboardMarkup, KeyboardButton
 
 # Функция-обработчик команды /start 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    #reply_markup = get_main_keyboard()  # Уже получаем готовую клавиатуру
+    #reply_markup = get_main_keyboard()  # Уже получаем готовую клавиатуру 
     user = update.message.from_user
 
     if has_user_got_fortune_today(user.id):
@@ -32,7 +32,7 @@ async def fortune_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Если не получал - продолжаем
     random_fortune = random.choice(FORTUNES)
-    user_id = get_or_create_user(user.id, user.first_name, user.last_name)
+    user_id = get_or_create_user(user.id, user.first_name, user.last_name, user.username)
     save_user_fortune(user_id, random_fortune, user.first_name)
 
     await update.message.reply_text(
