@@ -1,5 +1,8 @@
 from app import main
+from app.data import FORTUNES_Giga
 
-def test_tocen():
-	print(main.BOT_TOKEN)
-	assert type(main.BOT_TOKEN) == str
+def test_fortunes():
+	first_name = 'Субхон'
+	data = FORTUNES_Giga(first_name)
+	print(data)
+	assert data

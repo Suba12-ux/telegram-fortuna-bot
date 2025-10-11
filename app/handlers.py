@@ -1,9 +1,7 @@
-import os
-import asyncio
+import os, asyncio, json, random
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
-import random
-from app.data import FORTUNES
+from app.data import FORTUNES_Giga
 from app.database import *
 from telegram import ReplyKeyboardMarkup, KeyboardButton
 
@@ -31,12 +29,17 @@ async def fortune_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     # Если не получал - продолжаем
-    random_fortune = random.choice(FORTUNES)
+    await update.message.reply_text(f"🔮 Заглядываем в будущее, пожалуйста подождите...")
+     
+    random_fortune1 = FORTUNES_Giga(user.first_name)
+    if random_fortune1 is None:
+        await update.message.reply_text(f"🔮 Простите сегодян магнитные бури, пердсказание сломалось.")
+    
     user_id = get_or_create_user(user.id, user.first_name, user.last_name, user.username)
-    save_user_fortune(user_id, random_fortune, user.first_name)
+    save_user_fortune(user_id, random_fortune1, user.first_name)
 
     await update.message.reply_text(
-        f"🔮 Ваше предсказание на сегодня:\n\n*{random_fortune}*"
+        f"🔮 Ваше предсказание на сегодня:\n\n*{random_fortune1}*"
     )
 
 # Функция-обработчик команды /help

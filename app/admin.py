@@ -5,7 +5,6 @@ from app.database import init_db
 from dotenv import load_dotenv 
 from telegram import BotCommand, Update
 from app.database import *
-from app.data import FORTUNES
 from telegram import ReplyKeyboardMarkup, KeyboardButton
 #if user.id == 883502267 or user.first_name == 'Субхон' and user.last_name == 'Эмомов' and user.username == '@SEmomov':
 
