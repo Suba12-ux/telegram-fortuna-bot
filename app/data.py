@@ -5,7 +5,7 @@ from . import models
 from google import genai
 from google.genai import types
 from gigachat import GigaChat
-
+from ollama import chat, ChatResponse
 
 def FORTUNES_HF(first_name):
     '''Если что то будет не понятно смотереть оф.док https://huggingface.co/docs/inference-providers/guides/structured-output '''
@@ -113,5 +113,36 @@ def FORTUNES_Giga(first_name):
         with GigaChat(credentials=os.getenv("GigaChat"), verify_ssl_certs=False) as giga:
             response = giga.chat(paper_text)
             return response.choices[0].message.content
+    except Exception as error:
+        return None
+
+def FORTUNES_Ollama(first_name):
+    
+    try:
+        #Текст сообщения от пользователя но у меня оно статичное.
+        paper_text = f"""
+            Сгенерируй мне одно предсказание на день, что меня сегодня ждет ?
+        """ 
+        message = [
+                {
+                    "role": "system", 
+                    "content": f"""
+                        Нужно сгенерировать одно предсказание на день для пользователя по имени - {first_name}.
+                        Предсказание должно быть не больше 20 слов.
+                        Пиши предсказание так будто говоришь с пользоваетлем.
+                    """
+                },
+                {
+                    "role": first_name, 
+                    "content": paper_text
+                }
+            ]
+
+        response: ChatResponse = chat(
+            model='gemma3:4b', 
+            messages=message,
+            stream=False,
+            )
+        return response['message']['content'] #response.message.content
     except Exception as error:
         return None

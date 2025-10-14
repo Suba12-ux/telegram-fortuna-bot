@@ -32,16 +32,16 @@ async def admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 users_text += "Нет пользователей\n"
             
             # Форматируем предсказания
-            fortunes_text = "🔮 Предсказания:\n"
-            if user_data.get('fortunes'):
-                for i, fortune in enumerate(user_data['fortunes'], 1):
-                    fortunes_text += f"{i}. {str(fortune)}\n"
-            else:
-                fortunes_text += "Нет предсказаний\n"
+            #fortunes_text = "🔮 Предсказания:\n"
+            #if user_data.get('fortunes'):
+            #    for i, fortune in enumerate(user_data['fortunes'], 1):
+            #        fortunes_text += f"{i}. {str(fortune)}\n"
+            #else:
+            #    fortunes_text += "Нет предсказаний\n"
             
             # Отправляем
             await update.message.reply_text(users_text)
-            await update.message.reply_text(fortunes_text)
+            #await update.message.reply_text(fortunes_text)
             
         except Exception as e:
             await update.message.reply_text(f"❌ Ошибка: {e}")

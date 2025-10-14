@@ -1,10 +1,10 @@
 import os, asyncio, json, random
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
-from app.data import FORTUNES_Giga
+from app.data import FORTUNES_Giga, FORTUNES_Ollama
 from app.database import *
 from telegram import ReplyKeyboardMarkup, KeyboardButton
-
+from dotenv import load_dotenv
 
 # Функция-обработчик команды /start 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -22,16 +22,17 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def fortune_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.message.from_user
     #reply_markup = get_main_keyboard()
-
+    load_dotenv()
+    admin = os.getenv('admin_user_info')
     # Проверяем, получал ли пользователь предсказание сегодня save_user_fortune
-    if has_user_got_fortune_today(user.id):
+    if has_user_got_fortune_today(user.id) and not str(user.id) in admin:
         await update.message.reply_text("Извини, но предсказание можно получить только один раз в день! Завтра приходи еще 😉" ) # reply_markup=reply_markup
         return
 
     # Если не получал - продолжаем
     await update.message.reply_text(f"🔮 Заглядываем в будущее, пожалуйста подождите...")
      
-    random_fortune1 = FORTUNES_Giga(user.first_name)
+    random_fortune1 = FORTUNES_Ollama(user.first_name)
     if random_fortune1 is None:
         await update.message.reply_text(f"🔮 Простите сегодян магнитные бури, пердсказание сломалось.")
     
